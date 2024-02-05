@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head> </head>
+  <body>
+    <link rel="stylesheet" href="CSS2.css" />
+    <script src="basededatos.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+
+    <div class="Loginbox">
+     
+      <form onsubmit="LOGI(); return false;">
+        <h2 class="input">Login Attenza</h2>
+        <br>
+        <input class="input" id="user" type="text" placeholder="Usuario" required autofocus/>
+        <br />
+        <br />
+        <input class="input" id="pass" type="password" placeholder="Contraseña" required />
+        <br />
+        <br />
+       <input class="button" type="submit" value="Entrar" onclick="LOGI()">
+      </form>
+   
+    </div>
+  </body>
+</html>

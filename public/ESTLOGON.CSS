@@ -1,0 +1,130 @@
+/* Estilo para centrar el encabezado de la tabla antes de que se agregue una fila
+#dynamicTable thead th {
+  text-align: center;
+  vertical-align: middle;
+  width: 100px;
+} */ 
+
+
+/* Estilo general para el contenedor */
+.ALL {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: rgba(39, 128, 211, 0.548);
+    background-image: url('1.jpeg'); /* Reemplaza 'ruta/a/tu/imagen.jpg' con la ruta real de tu imagen */
+    background-size: cover; /* Ajusta el tamaño de la imagen para cubrir todo el cuerpo */
+    background-position: center; /* Centra la imagen */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+  }
+  
+  /* Estilo para el formulario */
+  .FORM {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0);
+  }
+  
+  /* Estilo para los títulos */
+  .HD {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background-color: black;
+    color: pink;
+    width: auto;
+    height: 40px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+  }
+  
+  /* Estilo para los botones */
+  .button {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background-color: black;
+    color: pink;
+    width: auto;
+    height: 40px;
+    font-size: 18px;
+    border-radius: 0px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+  }
+
+  .button:disabled,
+  .button:disabled:hover {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background-color: grey;
+    color: white;
+    cursor: not-allowed;
+    width: auto;
+    height: 40px;
+    font-size: 18px;
+    border-radius: 0px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+  }
+
+  .delete-button {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background-color: black;
+    color: pink;
+    width: 100%;
+    height: auto;
+    font-size: 16px;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 15px;
+  }
+  
+  .button:hover {
+    background-color: #333;
+  }
+  
+  /* Estilo para los campos de entrada */
+  .input-test, .barcode-cell, .quantity-cell {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color:black;
+    width: 100%;
+    height: auto;
+    font-size: 16px;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 15px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background-color: white;
+  }
+  
+  /* Estilo para mejorar la apariencia del enlace de descarga Excel */
+  .download-link {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    background-color: #4caf50;
+    border-radius: 5px;
+  }
+  
+  .download-link:hover {
+    background-color: #45a049;
+  }
+  
+  div {
+    display: flex;
+    flex-direction: column;
+    width: 550px;
+    padding: 0;
+    margin: 0;
+}
+
+@media screen and (max-width: 768px) {
+  div {
+      width: 100%;
+      padding: 10px;
+  }
+}
+
