@@ -93,7 +93,7 @@ app.post("/save-rdanos", upload.any(), (req, res) => {
     imagenes.forEach((imagen, index) => {
       const imagePath = path.join(
         ReportesDalDir,
-        `${formattedDate}-${Tienda}-Imagen${index + 1}.${path.extname(imagen.originalname)}`
+        `${formattedDate}-${Tienda}-Imagen${index + 1}${path.extname(imagen.originalname)}`
       );
       fs.writeFileSync(imagePath, imagen.buffer);
     });
