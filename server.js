@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const winston = require('winston');
 const bodyParser = require("body-parser");
 const XLSX = require("xlsx");
 const fs = require("fs");
@@ -21,6 +22,34 @@ const HTTPS_SERVER_PORT = CONFIG.HTTPS_SERVER_PORT;
 const PedidosTestersDir = CONFIG.PedidosTestersDir;
 const ReportesDalDir = CONFIG.ReportesDalDir;
 
+// Crear el directorio de logs si no existe
+const logDir = 'log';
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+}
+
+// Obtener la fecha actual y formatearla como una cadena
+const date = new Date();
+const formattedDate = `${date.getFullYear()}-${
+  date.getMonth() + 1
+}-${date.getDate()}`;
+
+// Obtener el número de autoincremento
+let num = 0;
+while (fs.existsSync(path.join(logDir, `${formattedDate}-${num}.log`))) {
+    num++;
+}
+
+// Crear el logger
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.File({ filename: path.join(logDir, `${formattedDate}-${num}.log`), level: 'info' }),
+        new winston.transports.File({ filename: path.join(logDir, `${formattedDate}-${num}-error.log`), level: 'error' })
+    ]
+});
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public"))); // Asume que tus archivos estáticos (html, css, js) están en una carpeta llamada 'public'
@@ -37,12 +66,6 @@ app.post("/save-excel", (req, res) => {
   const worksheet = XLSX.utils.json_to_sheet(data);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-  // Obtener la fecha actual y formatearla como una cadena
-  const date = new Date();
-  const formattedDate = `${date.getFullYear()}-${
-    date.getMonth() + 1
-  }-${date.getDate()}`;
 
   XLSX.writeFile(
     workbook,
@@ -62,11 +85,20 @@ app.post("/save-excel", (req, res) => {
       por +
       " guardado en el servidor"
   );
+  logger.info(
+    formattedDate +
+      " - Pedido " +
+      marca +
+      " de " +
+      user +
+      " solicitado por " +
+      por +
+      " guardado en el servidor"
+  );
 });
 
 app.post("/save-rdanos", upload.any(), (req, res) => {
   try {
-    console.log(req.body);
     // Convierte la cadena JSON en un array de objetos JSON iterable
     const data = JSON.parse(req.body.data);
     const Tienda = req.body.Tienda;
@@ -76,12 +108,6 @@ app.post("/save-rdanos", upload.any(), (req, res) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte " + Tienda);
-
-    // Obtener la fecha actual y formatearla como una cadena
-    const date = new Date();
-    const formattedDate = `${date.getFullYear()}-${
-      date.getMonth() + 1
-    }-${date.getDate()}`;
 
     // Guardar el archivo de Excel en el servidor
     XLSX.writeFile(
@@ -93,7 +119,9 @@ app.post("/save-rdanos", upload.any(), (req, res) => {
     imagenes.forEach((imagen, index) => {
       const imagePath = path.join(
         ReportesDalDir,
-        `${formattedDate}-${Tienda}-Imagen${index + 1}${path.extname(imagen.originalname)}`
+        `${formattedDate}-${Tienda}-Imagen${index + 1}${path.extname(
+          imagen.originalname
+        )}`
       );
       fs.writeFileSync(imagePath, imagen.buffer);
     });
@@ -105,19 +133,29 @@ app.post("/save-rdanos", upload.any(), (req, res) => {
         Tienda +
         " guardado en el servidor"
     );
+    logger.info(
+      formattedDate +
+        " - Reporte de daños de " +
+        Tienda +
+        " guardado en el servidor"
+    );
   } catch (error) {
     console.error(error);
-    res.status(500).send("Hubo un error al procesar la solicitud");
+    logger.error(error);
+    res.status(500).send("Hubo un error al procesar el reporte");
   }
 });
 
+
+//Frontend alojado en el servidor
 app.get("/LOGON1.HTML", (req, res) => {
   res.sendFile(path.join(__dirname, "public/LOGON1.HTML"));
 });
 
 if (HTTP) {
   app.listen(HTTP_SERVER_PORT, () =>
-    console.log("Servidor HTTP ejecutandose en el puerto " + HTTP_SERVER_PORT)
+    console.log("Servidor HTTP ejecutandose en el puerto " + HTTP_SERVER_PORT),
+    logger.info("Servidor HTTP ejecutandose en el puerto " + HTTP_SERVER_PORT)
   );
 }
 
@@ -127,7 +165,7 @@ if (HTTPS) {
 
   // Escuchar en el puerto 8443
   server.listen(HTTPS_SERVER_PORT, () =>
-    console.log("Servidor HTTPS ejecutandose en el puerto " + HTTPS_SERVER_PORT)
+    console.log("Servidor HTTPS ejecutandose en el puerto " + HTTPS_SERVER_PORT),
+    logger.info("Servidor HTTPS ejecutandose en el puerto " + HTTPS_SERVER_PORT)
   );
 }
-//Ejecutar el comando node server.js en la terminal para iniciar el servidor
