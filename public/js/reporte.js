@@ -3,7 +3,7 @@ import config from "./config.js";
 const http = config.http;
 const server = config.server;
 const port = config.port;
-const endpointapi = config.endpointapi;
+const epreporte = config.epreporte;
 
 // Se define variable para almacenar los datos de la tabla para el excel
 let Filas = [];
@@ -137,7 +137,7 @@ function generateExcel() {
   console.log(Filas, TiendaParam);
   // Enviar el objeto FormData al servidor backend mediante una petición POST
   axios
-    .post(http + server + ":" + port + endpointapi, formData)
+    .post(http + server + ":" + port + epreporte, formData)
     .then(() => {
       alert("Se ha cargado el reporte de daños exitosamente!");
       console.log("Se ha cargado el reporte de daños exitosamente!");
