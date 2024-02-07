@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="css/solicitud.css">
+<script src="js/solicitud.js"></script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de probadores</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="ALL">
+<div>
+    <input name="tienda" id="tienda" class="input-test" required disabled placeholder="Tienda">
+</input>
+    <input type="text" placeholder="Realizado por" class="input-test" id="por" required>
+    <input type="text" placeholder="Marca" class="input-test" id="marca" required>
+    <input type="text" placeholder="Código de barra" class="input-test" id="codebar">
+    <table id="dynamicTable">
+    <thead>
+      <tr class="HD">
+        <th>Código de Barra</th>
+        <th colspan="2">Cantidad</th>
+      </tr>
+    </thead>
+    <tbody class="FORM">
+        <!-- Filas dinámicas se agregarán aquí -->
+      </tbody>
+  </table>
+  <button class="button"  onclick="generateExcel()">Cargar Pedido</button>
+</div>
+<script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</body>
+</html>

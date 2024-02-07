@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const winston = require('winston');
+const winston = require("winston");
 const bodyParser = require("body-parser");
 const XLSX = require("xlsx");
 const fs = require("fs");
@@ -8,55 +8,85 @@ const path = require("path");
 const https = require("https");
 // Middleware para subir archivos de tipo form-data
 const multer = require("multer");
+const { log } = require("console");
 const upload = multer();
-const CONFIG = require("./config");
 
-const app = express();
-
-// Configuración de CORS
-const HTTP = CONFIG.HTTP;
-const HTTPS = CONFIG.HTTPS;
-//Configuracion de puertos y directorios
-const HTTP_SERVER_PORT = CONFIG.HTTP_SERVER_PORT;
-const HTTPS_SERVER_PORT = CONFIG.HTTPS_SERVER_PORT;
-const PedidosTestersDir = CONFIG.PedidosTestersDir;
-const ReportesDalDir = CONFIG.ReportesDalDir;
+let CONFIG,
+  HTTP,
+  HTTPS,
+  HTTP_SERVER_PORT,
+  HTTPS_SERVER_PORT,
+  PedidosTestersDir,
+  ReportesDalDir,
+  key,
+  cert;
 
 // Crear el directorio de logs si no existe
-const logDir = 'log';
+const logDir = "log";
 if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir);
+  fs.mkdirSync(logDir);
 }
 
-// Obtener la fecha actual y formatearla como una cadena
+// Obtener la fecha actual y formatearla como una cadena para logger y archivos xlsx generados
 const date = new Date();
 const formattedDate = `${date.getFullYear()}-${
   date.getMonth() + 1
 }-${date.getDate()}`;
 
-// Obtener el número de autoincremento
-let num = 0;
-while (fs.existsSync(path.join(logDir, `${formattedDate}-${num}.log`))) {
-    num++;
-}
-
 // Crear el logger
 const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.json(),
-    transports: [
-        new winston.transports.File({ filename: path.join(logDir, `${formattedDate}-${num}.log`), level: 'info' }),
-        new winston.transports.File({ filename: path.join(logDir, `${formattedDate}-${num}-error.log`), level: 'error' })
-    ]
+  level: "info",
+  //format: winston.format.json(),
+  format: winston.format.printf(info => info.message),
+  transports: [
+    new winston.transports.File({
+      filename: path.join(logDir, `${formattedDate}.log`),
+      level: "info",
+    }),
+    new winston.transports.File({
+      filename: path.join(logDir, `${formattedDate}-error.log`),
+      level: "error",
+    }),
+  ],
 });
+
+try {
+  CONFIG = require("./config");
+  // Configuración de CORS
+  HTTP = CONFIG.HTTP;
+  HTTPS = CONFIG.HTTPS;
+  //Configuracion de puertos y directorios
+  HTTP_SERVER_PORT = CONFIG.HTTP_SERVER_PORT;
+  HTTPS_SERVER_PORT = CONFIG.HTTPS_SERVER_PORT;
+  PedidosTestersDir = CONFIG.PedidosTestersDir;
+  ReportesDalDir = CONFIG.ReportesDalDir;
+} catch (error) {
+  console.error(formattedDate + error);
+  logger.error(formattedDate + error);
+  const message =
+    formattedDate + " - No se pudo cargar el archivo de configuración";
+  console.error(message);
+  logger.error(message);
+}
+
+const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public"))); // Asume que tus archivos estáticos (html, css, js) están en una carpeta llamada 'public'
 
 // Leer la clave (key.pem) y el certificado (cert.pem) en el mismo directorio que server.js
-const key = fs.readFileSync(path.resolve(__dirname, "key.pem"));
-const cert = fs.readFileSync(path.resolve(__dirname, "cert.pem"));
+try {
+  key = fs.readFileSync(path.resolve(__dirname, "key.pem"));
+  cert = fs.readFileSync(path.resolve(__dirname, "cert.pem"));
+} catch (error) {
+  console.error(formattedDate + error);
+  logger.error(formattedDate + error);
+  const message =
+    formattedDate + " - No se pudo cargar el certificado y la clave";
+  console.error(message);
+  logger.error(message);
+}
 
 app.post("/save-excel", (req, res) => {
   const data = req.body.data;
@@ -75,26 +105,17 @@ app.post("/save-excel", (req, res) => {
     )
   );
   res.send("Excel guardado en el servidor!");
-  console.log(
+  const message =
     formattedDate +
-      " - Pedido " +
-      marca +
-      " de " +
-      user +
-      " solicitado por " +
-      por +
-      " guardado en el servidor"
-  );
-  logger.info(
-    formattedDate +
-      " - Pedido " +
-      marca +
-      " de " +
-      user +
-      " solicitado por " +
-      por +
-      " guardado en el servidor"
-  );
+    " - Pedido " +
+    marca +
+    " de " +
+    user +
+    " solicitado por " +
+    por +
+    " guardado en el servidor";
+  console.log(message);
+  logger.info(message);
 });
 
 app.post("/save-rdanos", upload.any(), (req, res) => {
@@ -127,25 +148,22 @@ app.post("/save-rdanos", upload.any(), (req, res) => {
     });
 
     res.send("Reporte enviado correctamente!");
-    console.log(
+    const message =
       formattedDate +
-        " - Reporte de daños de " +
-        Tienda +
-        " guardado en el servidor"
-    );
-    logger.info(
-      formattedDate +
-        " - Reporte de daños de " +
-        Tienda +
-        " guardado en el servidor"
-    );
+      " - Reporte de daños de " +
+      Tienda +
+      " guardado en el servidor";
+    console.log(message);
+    logger.info(message);
   } catch (error) {
-    console.error(error);
-    logger.error(error);
+    console.error(formattedDate + error);
+    logger.error(formattedDate + error);
+    const message = formattedDate + " - Hubo un error al procesar el reporte";
     res.status(500).send("Hubo un error al procesar el reporte");
+    console.error(message);
+    logger.error(message);
   }
 });
-
 
 //Frontend alojado en el servidor
 app.get("/LOGON1.HTML", (req, res) => {
@@ -153,10 +171,14 @@ app.get("/LOGON1.HTML", (req, res) => {
 });
 
 if (HTTP) {
-  app.listen(HTTP_SERVER_PORT, () =>
-    console.log("Servidor HTTP ejecutandose en el puerto " + HTTP_SERVER_PORT),
-    logger.info("Servidor HTTP ejecutandose en el puerto " + HTTP_SERVER_PORT)
-  );
+  app.listen(HTTP_SERVER_PORT, () => {
+    const message =
+      formattedDate +
+      " - Servidor HTTP ejecutandose en el puerto " +
+      HTTP_SERVER_PORT + ": (http://localhost:" + HTTP_SERVER_PORT + ")";
+    console.log(message);
+    logger.info(message);
+  });
 }
 
 // Crear el servidor HTTPS si esta habilitada en la constante HTTPS
@@ -164,8 +186,12 @@ if (HTTPS) {
   const server = https.createServer({ key, cert }, app);
 
   // Escuchar en el puerto 8443
-  server.listen(HTTPS_SERVER_PORT, () =>
-    console.log("Servidor HTTPS ejecutandose en el puerto " + HTTPS_SERVER_PORT),
-    logger.info("Servidor HTTPS ejecutandose en el puerto " + HTTPS_SERVER_PORT)
-  );
+  server.listen(HTTPS_SERVER_PORT, () => {
+    const message =
+      formattedDate +
+      " - Servidor HTTPS ejecutandose en el puerto " +
+      HTTPS_SERVER_PORT + ": (https://localhost:" + HTTPS_SERVER_PORT + ")";
+    console.log(message);
+    logger.info(message);
+  });
 }

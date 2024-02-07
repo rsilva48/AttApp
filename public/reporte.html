@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="css/reporte.css" />
+<script type="module" src="js/reporte.js"></script>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reporte de daños DAL</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body class="ALL">
+    <div>
+      <input
+        name="tienda"
+        id="tienda"
+        class="input-test"
+        required
+        disabled
+        placeholder="Tienda"
+      />
+      <input
+        type="text"
+        placeholder="Referencia"
+        class="input-test"
+        id="Referencia"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Daño"
+        class="input-test"
+        id="Daño"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Comentario"
+        class="input-test"
+        id="Comentario"
+        required
+      />
+      <input
+        type="file"
+        placeholder="Imagen del producto"
+        class="input-test"
+        id="imagen"
+        required
+      />
+      <button class="button" onclick="addRow()">Añadir Fila</button>
+      <button class="button" onclick="generateExcel()">Generar Reporte</button>
+      <table id="dynamicTable">
+        <tbody class="FORM">
+          <!-- Filas dinámicas se agregarán aquí -->
+        </tbody>
+      </table>
+    </div>
+    <script
+      lang="javascript"
+      src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"
+    ></script>
+  </body>
+</html>
