@@ -11,9 +11,12 @@ function LOGI() {
 
   if (
     (user == "GRD1" && pass == "1234") ||
+    (user == "SAT1" && pass == "1234") ||
     (user == "SAT2" && pass == "1234") ||
     (user == "SAT3" && pass == "1234") ||
     (user == "SAT4" && pass == "1234") ||
+    (user == "SAT5" && pass == "1234") ||
+    (user == "RLT2" && pass == "1234") ||
     (user == "GRT2" && pass == "1234") ||
     (user == "PLT2" && pass == "1234")
   ) {
