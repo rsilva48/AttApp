@@ -28,16 +28,23 @@ if (!fs.existsSync(logDir)) {
 }
 
 // Obtener la fecha actual y formatearla como una cadena para logger y archivos xlsx generados
-const date = new Date();
-const formattedDate = `${date.getFullYear()}-${
-  date.getMonth() + 1
-}-${date.getDate()}`;
+const now = new Date();
+const formattedDate = `${now.getFullYear()}-${
+  now.getMonth() + 1
+}-${now.getDate()}`;
+const date = now.toLocaleDateString();
+const time = now.toLocaleTimeString();
+const dt = now.toLocaleString();
+
+console.log(dt);
 
 // Crear el logger
 const logger = winston.createLogger({
   level: "info",
   //format: winston.format.json(),
-  format: winston.format.printf(info => info.message),
+  format: winston.format.printf((info) => {
+    return `${date} ${time}: ${info.message}`;
+  }),
   transports: [
     new winston.transports.File({
       filename: path.join(logDir, `${formattedDate}.log`),
@@ -61,11 +68,10 @@ try {
   PedidosTestersDir = CONFIG.PedidosTestersDir;
   ReportesDalDir = CONFIG.ReportesDalDir;
 } catch (error) {
-  console.error(formattedDate + error);
-  logger.error(formattedDate + error);
-  const message =
-    formattedDate + " - No se pudo cargar el archivo de configuración";
-  console.error(message);
+  console.error(dt + error);
+  logger.error(error);
+  const message = "No se pudo cargar el archivo de configuración";
+  console.error(dt + " - " + message);
   logger.error(message);
 }
 
@@ -80,11 +86,10 @@ try {
   key = fs.readFileSync(path.resolve(__dirname, "key.pem"));
   cert = fs.readFileSync(path.resolve(__dirname, "cert.pem"));
 } catch (error) {
-  console.error(formattedDate + error);
-  logger.error(formattedDate + error);
-  const message =
-    formattedDate + " - No se pudo cargar el certificado y la clave";
-  console.error(message);
+  console.error(dt + error);
+  logger.error(error);
+  const message = "No se pudo cargar el certificado y la clave";
+  console.error(dt + " - " + message);
   logger.error(message);
 }
 
@@ -106,7 +111,7 @@ app.post("/save-excel", (req, res) => {
   );
   res.send("Excel guardado en el servidor!");
   const message =
-    formattedDate +
+    dt +
     " - Pedido " +
     marca +
     " de " +
@@ -114,7 +119,7 @@ app.post("/save-excel", (req, res) => {
     " solicitado por " +
     por +
     " guardado en el servidor";
-  console.log(message);
+  console.log(dt + " - " + message);
   logger.info(message);
 });
 
@@ -149,18 +154,15 @@ app.post("/save-rdanos", upload.any(), (req, res) => {
 
     res.send("Reporte enviado correctamente!");
     const message =
-      formattedDate +
-      " - Reporte de daños de " +
-      Tienda +
-      " guardado en el servidor";
-    console.log(message);
+      "Reporte de daños de " + Tienda + " guardado en el servidor";
+    console.log(dt + " - " + message);
     logger.info(message);
   } catch (error) {
-    console.error(formattedDate + error);
-    logger.error(formattedDate + error);
-    const message = formattedDate + " - Hubo un error al procesar el reporte";
+    console.error(dt + error);
+    logger.error(error);
+    const message = "Hubo un error al procesar el reporte";
     res.status(500).send("Hubo un error al procesar el reporte");
-    console.error(message);
+    console.error(dt + " - " + message);
     logger.error(message);
   }
 });
@@ -173,10 +175,12 @@ app.get("/LOGON1.HTML", (req, res) => {
 if (HTTP) {
   app.listen(HTTP_SERVER_PORT, () => {
     const message =
-      formattedDate +
-      " - Servidor HTTP ejecutandose en el puerto " +
-      HTTP_SERVER_PORT + ": (http://localhost:" + HTTP_SERVER_PORT + ")";
-    console.log(message);
+      "Servidor HTTP ejecutandose en el puerto " +
+      HTTP_SERVER_PORT +
+      ": (http://localhost:" +
+      HTTP_SERVER_PORT +
+      ")";
+    console.log(dt + " - " + message);
     logger.info(message);
   });
 }
@@ -188,10 +192,12 @@ if (HTTPS) {
   // Escuchar en el puerto 8443
   server.listen(HTTPS_SERVER_PORT, () => {
     const message =
-      formattedDate +
-      " - Servidor HTTPS ejecutandose en el puerto " +
-      HTTPS_SERVER_PORT + ": (https://localhost:" + HTTPS_SERVER_PORT + ")";
-    console.log(message);
+      "Servidor HTTPS ejecutandose en el puerto " +
+      HTTPS_SERVER_PORT +
+      ": (https://localhost:" +
+      HTTPS_SERVER_PORT +
+      ")";
+    console.log(dt + " - " + message);
     logger.info(message);
   });
 }
