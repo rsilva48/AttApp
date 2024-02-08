@@ -86,7 +86,7 @@ try {
   key = fs.readFileSync(path.resolve(__dirname, "key.pem"));
   cert = fs.readFileSync(path.resolve(__dirname, "cert.pem"));
 } catch (error) {
-  console.error(dt + error);
+  console.error(dt + " - " + error);
   logger.error(error);
   const message = "No se pudo cargar el certificado y la clave";
   console.error(dt + " - " + message);
@@ -201,3 +201,5 @@ if (HTTPS) {
     logger.info(message);
   });
 }
+
+module.exports = app;
