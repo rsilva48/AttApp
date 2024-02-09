@@ -12,6 +12,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: ${{ matrix.node-version }}
+      TEST_ENV: true
 
     strategy:
       matrix:
@@ -26,7 +29,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
           cache-dependency-path: package-lock.json
-      - name: Create config.js
+      - name: Create config.json
         run: echo "${{ secrets.CONFIG_JSON }}" | base64 --decode > config.json
       - name: Create cert.pem
         run: echo "${{ secrets.CERT_PEM }}" | base64 --decode > cert.pem

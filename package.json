@@ -1,4 +1,9 @@
 {
+  "name": "attapp",
+  "version": "0.0.2",
+  "description": "Backend de Attenza App",
+  "main": "server.js",
+  "author": "ARSolutions",
   "dependencies": {
     "axios": "^1.6.7",
     "body-parser": "^1.20.2",
@@ -11,7 +16,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "mocha test.js"
+    "test": "mocha test.js",
+    "act": "act --secret-file .secrets"
   },
   "devDependencies": {
     "mocha": "^10.3.0",

@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
+const http = require('http');
 const https = require("https");
 // Middleware para subir archivos de tipo form-data
 const multer = require("multer");
@@ -63,8 +64,15 @@ try {
   HTTP = CONFIG.HTTP;
   HTTPS = CONFIG.HTTPS;
   //Configuracion de puertos y directorios
-  HTTP_SERVER_PORT = CONFIG.HTTP_SERVER_PORT;
-  HTTPS_SERVER_PORT = CONFIG.HTTPS_SERVER_PORT;
+  //Si se está ejecutando en un entorno de pruebas, se sumará un offset al puerto, dependiendo de la versión de Node
+  if (process.env.TEST_ENV === "true") {
+    const portOffset = (parseInt(process.env.NODE_VERSION) - 14) * 2;
+    HTTP_SERVER_PORT = CONFIG.HTTP_SERVER_PORT + portOffset;
+    HTTPS_SERVER_PORT = CONFIG.HTTPS_SERVER_PORT + portOffset;
+  } else {
+    HTTP_SERVER_PORT = CONFIG.HTTP_SERVER_PORT;
+    HTTPS_SERVER_PORT = CONFIG.HTTPS_SERVER_PORT;
+  }
   PedidosTestersDir = CONFIG.PedidosTestersDir;
   ReportesDalDir = CONFIG.ReportesDalDir;
 } catch (error) {
@@ -74,12 +82,6 @@ try {
   console.error(dt + " - " + message);
   logger.error(message);
 }
-
-const app = express();
-
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "public"))); // Asume que tus archivos estáticos (html, css, js) están en una carpeta llamada 'public'
 
 // Leer la clave (key.pem) y el certificado (cert.pem) en el mismo directorio que server.js
 try {
@@ -92,6 +94,13 @@ try {
   console.error(dt + " - " + message);
   logger.error(message);
 }
+
+const app = express(); //Servidor Express HTTP
+const server = https.createServer({ key, cert }, app); //Servidor HTTPS
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public"))); // Asume que tus archivos estáticos (html, css, js) están en una carpeta llamada 'public'
 
 app.post("/save-excel", (req, res) => {
   const data = req.body.data;
@@ -172,7 +181,8 @@ app.get("/LOGON1.HTML", (req, res) => {
   res.sendFile(path.join(__dirname, "public/LOGON1.HTML"));
 });
 
-if (HTTP) {
+if (HTTP && !process.env.TEST_ENV) {
+  // Escuchar HTTP en el puerto definido en la constante HTTP_SERVER_PORT
   app.listen(HTTP_SERVER_PORT, () => {
     const message =
       "Servidor HTTP ejecutandose en el puerto " +
@@ -186,10 +196,8 @@ if (HTTP) {
 }
 
 // Crear el servidor HTTPS si esta habilitada en la constante HTTPS
-if (HTTPS) {
-  const server = https.createServer({ key, cert }, app);
-
-  // Escuchar en el puerto 8443
+if (HTTPS && !process.env.TEST_ENV) {
+  // Escuchar HTTPS en el puerto definido en la constante HTTPS_SERVER_PORT
   server.listen(HTTPS_SERVER_PORT, () => {
     const message =
       "Servidor HTTPS ejecutandose en el puerto " +
@@ -202,4 +210,13 @@ if (HTTPS) {
   });
 }
 
-module.exports = app;
+// Exportar el servidor y la aplicación para pruebas
+if (process.env.TEST_ENV === "true") {
+  const httpServer = http.createServer(app).listen(HTTP_SERVER_PORT);
+  const httpsServer = https
+    .createServer({ key, cert }, app)
+    .listen(HTTPS_SERVER_PORT);
+  module.exports = { app, server, httpServer, httpsServer };
+} else {
+  module.exports = { app, server };
+}
